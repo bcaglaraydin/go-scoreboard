@@ -19,6 +19,3 @@ go.work
 
 #env
 .env
-
-#air
-.air.toml

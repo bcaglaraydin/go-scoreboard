@@ -5,7 +5,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func setupRoutes(app *fiber.App) {
-	app.Get("/", handlers.List)
-	app.Post("/create", handlers.CreateUser)
+func SetupRoutes(app *fiber.App) {
+	setupLeaderboardRoute(app, "/leaderboard")
+	setupUserRoute(app, "/user")
+}
+
+func setupLeaderboardRoute(app *fiber.App, prefix string) {
+	leaderboardRoute := app.Group(prefix)
+	leaderboardRoute.Get("/", handlers.GetLeaderboard)
+}
+
+func setupUserRoute(app *fiber.App, prefix string) {
+	userRoute := app.Group(prefix)
+	userRoute.Post("/create", handlers.CreateUser)
 }
