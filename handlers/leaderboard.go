@@ -7,11 +7,6 @@ import (
 )
 
 func GetLeaderboard(c *fiber.Ctx) error {
-	// users := []models.User{}
-
-	// database.DB.Db.Find(&users)
-
-	// return c.Status(200).JSON(users)
 
 	rdb := database.GetRedisClient()
 

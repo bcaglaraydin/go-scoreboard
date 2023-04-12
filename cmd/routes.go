@@ -18,4 +18,5 @@ func setupLeaderboardRoute(app *fiber.App, prefix string) {
 func setupUserRoute(app *fiber.App, prefix string) {
 	userRoute := app.Group(prefix)
 	userRoute.Post("/create", handlers.CreateUser)
+	userRoute.Post("/create/random", handlers.CreateRandomUsers)
 }

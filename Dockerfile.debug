@@ -1,0 +1,9 @@
+FROM golang:1.20
+
+WORKDIR /usr/src/app
+EXPOSE 3000 4000
+
+COPY . .
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+RUN go build -gcflags "all=-N -l" -o main ./cmd
+RUN go mod tidy
