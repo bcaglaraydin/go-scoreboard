@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"encoding/json"
-
 	"github.com/bcaglaraydin/go-scoreboard/database"
+	"github.com/bcaglaraydin/go-scoreboard/handlers/common"
 	"github.com/bcaglaraydin/go-scoreboard/helpers"
 	"github.com/bcaglaraydin/go-scoreboard/models"
 	"github.com/go-redis/redis/v8"
@@ -40,16 +39,10 @@ func getLeaderBoardFromDb(rdb *redis.Client, args ...string) ([]*models.User, er
 
 	users := make([]*models.User, 0)
 	for _, userID := range userIDs {
-		userJson, err := rdb.HGet(database.Ctx, helpers.RedisUsersKey, userID).Result()
+		user, err := common.GetUserFromUserID(rdb, userID)
 		if err != nil {
 			return nil, err
 		}
-		var user models.User
-		err = json.Unmarshal([]byte(userJson), &user)
-		if err != nil {
-			return nil, err
-		}
-
 		if len(args) > 0 {
 			country := args[0]
 			if country != "" && user.Country != country {
@@ -57,7 +50,7 @@ func getLeaderBoardFromDb(rdb *redis.Client, args ...string) ([]*models.User, er
 			}
 		}
 
-		users = append(users, &user)
+		users = append(users, user)
 	}
 	return users, nil
 }
