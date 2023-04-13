@@ -10,7 +10,7 @@ var Ctx = context.Background()
 
 func GetRedisClient() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: "127.0.0.1:6379",
 	})
 	return rdb
 }

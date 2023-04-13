@@ -13,10 +13,11 @@ func SetupRoutes(app *fiber.App) {
 func setupLeaderboardRoute(app *fiber.App, prefix string) {
 	leaderboardRoute := app.Group(prefix)
 	leaderboardRoute.Get("/", handlers.GetLeaderboard)
+	leaderboardRoute.Get("/:country_iso_code", handlers.GetLeaderboardFilterCountry)
 }
 
 func setupUserRoute(app *fiber.App, prefix string) {
 	userRoute := app.Group(prefix)
 	userRoute.Post("/create", handlers.CreateUser)
-	userRoute.Post("/create/random", handlers.CreateRandomUsers)
+	// userRoute.Post("/create/random", handlers.CreateRandomUsers)
 }

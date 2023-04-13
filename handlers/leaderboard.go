@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"encoding/json"
+
 	"github.com/bcaglaraydin/go-scoreboard/database"
+	"github.com/bcaglaraydin/go-scoreboard/helpers"
 	"github.com/bcaglaraydin/go-scoreboard/models"
+	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -10,46 +14,50 @@ func GetLeaderboard(c *fiber.Ctx) error {
 
 	rdb := database.GetRedisClient()
 
-	// Get the leaderboard as a slice of user IDs, sorted by rank
-	result, err := rdb.ZRange(database.Ctx, "leaderboard", 0, -1).Result()
+	leaderboardJson, err := getLeaderBoardFromDb(rdb)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.JSON(leaderboardJson)
+}
+
+func GetLeaderboardFilterCountry(c *fiber.Ctx) error {
+
+	rdb := database.GetRedisClient()
+	country := c.Params("country_iso_code")
+	leaderboardJson, err := getLeaderBoardFromDb(rdb, country)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.JSON(leaderboardJson)
+}
+
+func getLeaderBoardFromDb(rdb *redis.Client, args ...string) ([]*models.User, error) {
+	userIDs, err := rdb.ZRevRange(database.Ctx, helpers.RedisLeaderboardKey, 0, -1).Result()
+	if err != nil {
+		return nil, err
 	}
 
-	// Get the rank and score for each user, and return them in a slice of User
-	users := make([]models.User, len(result))
-	for i, userID := range result {
-		rank, err := rdb.ZRank(database.Ctx, "leaderboard", userID).Result()
+	users := make([]*models.User, 0)
+	for _, userID := range userIDs {
+		userJson, err := rdb.HGet(database.Ctx, helpers.RedisUsersKey, userID).Result()
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return nil, err
 		}
-		score, err := rdb.ZScore(database.Ctx, "leaderboard", userID).Result()
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": err.Error(),
-			})
-		}
-
-		// Query the user data from the database
 		var user models.User
-		if err := database.DB.Db.Where("user_id = ?", userID).First(&user).Error; err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+		err = json.Unmarshal([]byte(userJson), &user)
+		if err != nil {
+			return nil, err
 		}
 
-		// Set the user's rank and score
-		user.Rank = int(rank) + 1
-		user.Points = int(score)
+		if len(args) > 0 {
+			country := args[0]
+			if country != "" && user.Country != country {
+				continue
+			}
+		}
 
-		users[i] = user
+		users = append(users, &user)
 	}
-
-	// Return the leaderboard as JSON
-	return c.Status(fiber.StatusOK).JSON(users)
-
+	return users, nil
 }

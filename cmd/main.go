@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/bcaglaraydin/go-scoreboard/database"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -16,7 +15,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	database.ConnectDb()
+	// database.ConnectDb()
 	app := fiber.New(fiber.Config{
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
