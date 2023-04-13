@@ -6,7 +6,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "cmd"
+            "program": "api/cmd"
         },
         {
             "name": "Remote Docker App",

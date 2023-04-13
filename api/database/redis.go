@@ -9,6 +9,11 @@ import (
 
 var Ctx = context.Background()
 
+const (
+	RedisLeaderboardKey = "leaderboard"
+	RedisUsersKey       = "users"
+)
+
 func GetRedisClient() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: os.Getenv("REDIS_HOST") + os.Getenv("REDIS_PORT"),
