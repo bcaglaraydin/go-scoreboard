@@ -37,7 +37,7 @@ func SubmitScore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	common.UpdateUserPointAndScore(rdb, user)
+	common.SaveUser(rdb, user)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": fmt.Sprintf("User %s current score: %s", score.UserID, newScore)})
 }

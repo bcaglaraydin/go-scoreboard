@@ -2,21 +2,21 @@ version: '3.9'
 
 services:
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-      restart: always
+    build: ./api
+    restart: always
+    working_dir: /usr/src/app/api
     env_file:
-      - ./api/.env
-    ports:
-      - "3000:3000"
-      - "4000:4000"
+      - .env
+    # ports:
+    #   - "3000:3000"
+    #   - "4000:4000"
     volumes:
       - .:/usr/src/app
     command: go run ./cmd -b 0.0.0.0
+
     # command: /go/bin/dlv --listen=:4000 --headless=true --log=true --accept-multiclient --api-version=2 exec /usr/src/app/main
     depends_on:
-      - db
+      - postgres
       - redis
   postgres:
     image: postgres:alpine
@@ -36,7 +36,16 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server
-  nginx: build
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - 3000:3000
+    restart: always
 
 volumes:
   postgres-db:

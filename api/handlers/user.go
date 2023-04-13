@@ -23,7 +23,7 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := common.UpdateUserPointAndScore(rdb, user); err != nil {
+	if err := common.SaveUser(rdb, user); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 

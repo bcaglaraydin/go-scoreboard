@@ -19,25 +19,39 @@ func GetUserFromUserID(rdb *redis.Client, userID string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+
+	userP, err := setUserPointAndRank(rdb, &user)
+	if err != nil {
+		return nil, err
+	}
+	return userP, nil
 }
 
-func UpdateUserPointAndScore(rdb *redis.Client, user *models.User) error {
-	user, err := updateUserRank(rdb, user)
+func SaveUser(rdb *redis.Client, user *models.User) error {
+	user, err := setUserPointAndRank(rdb, user)
 	if err != nil {
 		return err
 	}
-
-	user, err = updateUserPoint(rdb, user)
-	if err != nil {
-		return err
-	}
-
 	err = saveUserToHashSet(rdb, user)
 	return err
 }
 
-func updateUserRank(rdb *redis.Client, user *models.User) (*models.User, error) {
+func setUserPointAndRank(rdb *redis.Client, user *models.User) (*models.User, error) {
+	user, err := setUserRank(rdb, user)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err = setUserPoint(rdb, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
+}
+
+func setUserRank(rdb *redis.Client, user *models.User) (*models.User, error) {
 	rank, err := rdb.ZRevRank(database.Ctx, helpers.RedisLeaderboardKey, user.UserID.String()).Result()
 	if err != nil {
 		return nil, err
@@ -46,7 +60,7 @@ func updateUserRank(rdb *redis.Client, user *models.User) (*models.User, error) 
 	return user, nil
 }
 
-func updateUserPoint(rdb *redis.Client, user *models.User) (*models.User, error) {
+func setUserPoint(rdb *redis.Client, user *models.User) (*models.User, error) {
 	point, err := rdb.ZScore(database.Ctx, helpers.RedisLeaderboardKey, user.UserID.String()).Result()
 	if err != nil {
 		return nil, err
