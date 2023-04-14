@@ -12,6 +12,7 @@ type UserServiceDB struct {
 	rdb *redis.Client
 }
 
+//go:generate mockery --name UserService
 type UserService interface {
 	AddUserToLeaderboard(user *models.User) error
 	GetUserFromUserID(userID string) (*models.User, error)

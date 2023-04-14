@@ -27,7 +27,6 @@ func setupUserRoute(app *fiber.App, prefix string, handler handlers.UserHandler)
 	userRoute := app.Group(prefix)
 	userRoute.Post("/create", handler.CreateUser)
 	userRoute.Get("/profile/:guid", handler.GetUser)
-	// userRoute.Post("/create/random", handlers.CreateRandomUsers)
 }
 
 func setupScoreRoute(app *fiber.App, prefix string, handler handlers.ScoreHandler) {
