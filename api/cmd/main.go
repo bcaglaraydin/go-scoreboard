@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 
-	swagger "github.com/arsmn/fiber-swagger/v2"
-	_ "github.com/bcaglaraydin/go-scoreboard/docs"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -34,6 +32,6 @@ func main() {
 		JSONDecoder: json.Unmarshal,
 	})
 	SetupRoutes(app)
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	// app.Get("/swagger/*", swagger.HandlerDefault)
 	log.Fatal(app.Listen(os.Getenv("APP_PORT")))
 }
