@@ -3,7 +3,7 @@
 - Stores users in a leaderboard using redis
 - nginx used as a load balancer to distribute traffic
 
-``` / go / fiber / Docker / nginx /```
+``` / go / fiber / Docker / nginx / redis / ```
 
 ## Local setup
 
