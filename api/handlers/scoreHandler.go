@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/bcaglaraydin/go-scoreboard/models"
@@ -25,7 +24,7 @@ func (h ScoreHandler) SubmitScore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "You can't submit a score from past!"})
 	}
 
-	if score.ScoreWorth <= 0 {
+	if score.ScoreWorth < 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "You can't submit a negative score!"})
 	}
 
@@ -35,11 +34,11 @@ func (h ScoreHandler) SubmitScore(c *fiber.Ctx) error {
 	}
 	user, err := h.UserService.GetUserFromUserID(score.UserID)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	err = h.UserService.SaveUser(user)
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+
+	if err := h.UserService.SaveUser(user); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": fmt.Sprintf("User %s current score: %f", score.UserID, newScore)})
